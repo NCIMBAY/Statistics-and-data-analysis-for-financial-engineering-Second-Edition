@@ -1,0 +1,53 @@
+"""
+Created on Fri Mar  3 14:35:46 2017
+
+@author: NCIMBAY
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import math
+import numpy as np
+import random
+
+#import data from csv
+Data=pd.read_csv('G:\\书籍\\面试答疑\\Python Lab for Statistics and data analysis\\datasets\\Stock_bond.csv',index_col='Date')
+Data.index=pd.to_datetime(Data.index)
+plt.plot(Data['GM_AC'],label='GM_AC')
+plt.plot(Data['F_AC'],label='F_AC')
+plt.legend()
+# shift is very import
+#calculate the daily return 
+GMReturn=Data['GM_AC'].diff(1)/Data['GM_AC'].shift(1)
+FReturn=Data['F_AC'].diff(1)/Data['F_AC'].shift(1)
+plt.scatter(GMReturn,FReturn,color='b')
+figure1=plt.show()
+
+fig=plt.figure(figsize=(8,8))
+plt.plot(GMReturn)
+plt.plot(FReturn)
+plt.show()
+
+#simulation
+N=int(10e5)
+below=np.array([0]*N)
+random.seed(2009)
+for i in range(N):
+    r=np.array([random.normalvariate(0.05/253,0.23/math.sqrt(253)) for _ in range(45)])
+    logPrice=math.log(1e6)+np.cumsum(r)
+    minLogp=min(logPrice)
+    below[i]=1 if minLogp<math.log(950000) else 0
+    
+print(below.mean())    
+
+
+#simulate a geometric random walk
+random.seed(2012)
+n=253
+fig=plt.figure(figsize=(10,10))
+for i in range(1,10):
+    logr=np.array([random.normalvariate(0.05/253,0.2/math.sqrt(253)) for _ in range(n)])
+    price=120*np.array([math.exp(x) for x in np.cumsum(logr)])
+    price=np.array([120,*price])
+    plt.subplot(3,3,i)
+    plt.plot(price)
